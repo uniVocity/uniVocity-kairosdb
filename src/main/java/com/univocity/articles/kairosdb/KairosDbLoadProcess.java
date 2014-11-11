@@ -155,8 +155,9 @@ public class KairosDbLoadProcess {
 		EntityMapping map = mapping.map("observation", "observations");
 		
 		map.identity().associate("fieldUnitZoneIdentifier", "fieldUnitAddress", "deviceLabel").to("name").readWith("mergeFunction");
-		map.value().copy("observationKind").to("observationKind");
 		map.value().copy("observationTimeEpochSeconds").to("timestamp").readingWith("from_s_to_ms");
+		map.value().copy("observedValue").to("value");
+		map.value().copy("observationKind").to("observationKind");
 	}
 
 	

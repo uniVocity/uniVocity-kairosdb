@@ -66,6 +66,7 @@ class KairosDataStore implements CustomDataStore<KairosDataEntity> {
 			}
 		}
 		try {
+			//operation will come from within uniVocity and is basically some processes around the the WritingProcess we created in KairosDataEntity.prepareToWrite()
 			operation.execute();
 		} finally {
 			try {
@@ -83,7 +84,6 @@ class KairosDataStore implements CustomDataStore<KairosDataEntity> {
 	}
 	
 	void pushMetrics(KairosDataEntity entity, MetricBuilder builder) {
-		
 		try {
 			Response response = activeClient.pushMetrics(builder);
 			if (response != null) {

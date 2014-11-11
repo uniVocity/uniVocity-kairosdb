@@ -75,17 +75,17 @@ class KairosDataEntity implements CustomDataEntity {
 			MetricBuilder builder = MetricBuilder.getInstance();
 
 			public void close() {
-				// will push the metrics at the end of the batch instead of at the end of the transaction.
+				// will push the metrics at the end of each batch instead of at the end of the transaction.
 				// otherwise the generated JSON content can be excessively big.
 				dataStore.pushMetrics(KairosDataEntity.this, builder);
 			}
 
 			public void writeNext(Object[] data) {
-				String name = get("name", String.class, data);
+				String name = get("name", String.class, data, true);
 				Metric metric = builder.addMetric(name);
 
-				Long timestamp = get("timestamp", Long.class, data);
-				Object value = get("value", Object.class, data);
+				Long timestamp = get("timestamp", Long.class, data, false);
+				Object value = get("value", Object.class, data, true);
 
 				if (timestamp == null) {
 					metric.addDataPoint(System.currentTimeMillis(), value);
@@ -94,13 +94,20 @@ class KairosDataEntity implements CustomDataEntity {
 				}
 
 				for (String tag : tags) {
-					String tagValue = get(tag, String.class, data);
+					String tagValue = get(tag, String.class, data, false);
 					metric.addTag(tag, tagValue);
 				}
 			}
 
-			private <T> T get(String field, Class<T> type, Object[] data) {
-				Integer position = fieldPositions.get(field); //should never be null
+			private <T> T get(String field, Class<T> type, Object[] data, boolean mandatory) {
+				Integer position = fieldPositions.get(field);
+				if(position == null){
+					if(mandatory){
+						throw new IllegalStateException("Mandatory field '" + field + "' not mapped.");
+					} else {
+						return null;
+					}
+				} 
 				Object value = data[position.intValue()];
 				return type.cast(value);
 			}
