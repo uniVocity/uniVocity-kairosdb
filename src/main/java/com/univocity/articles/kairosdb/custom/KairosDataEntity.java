@@ -29,7 +29,7 @@ class KairosDataEntity implements CustomDataEntity {
 	/**
 	 * Creates a new instance of a custom data entity, with a given set of field names
 	 *
-	 * @param dataStore the data store that contains this entity (we need it to manage transactions)
+	 * @param dataStore the data store that contains this entity (we need it to manage open connections)
 	 * @param entityName the name of the new custom data entity
 	 * @param fieldNames the fields in this entity.
 	 */
@@ -43,26 +43,30 @@ class KairosDataEntity implements CustomDataEntity {
 		tags.addAll(Arrays.asList(tagNames));
 	}
 
+	@Override
 	public String getEntityName() {
 		return entityName;
 	}
 
+	@Override
 	public ReadingProcess preareToRead(String[] fieldNames) {
 		return null;
 	}
 
+	@Override
 	public Set<? extends DefaultEntityField> getFields() {
 		return fields;
 	}
 
 	private void addFields(String... names) {
 		for (String name : names) {
-			if(StringUtils.isNotBlank(name)){
+			if (StringUtils.isNotBlank(name)) {
 				fields.add(new DefaultEntityField(name));
 			}
 		}
 	}
 
+	@Override
 	public WritingProcess prepareToWrite(String[] fieldNames) {
 
 		final Map<String, Integer> fieldPositions = new HashMap<String, Integer>();
@@ -74,12 +78,14 @@ class KairosDataEntity implements CustomDataEntity {
 
 			MetricBuilder builder = MetricBuilder.getInstance();
 
+			@Override
 			public void close() {
 				// will push the metrics at the end of each batch instead of at the end of the transaction.
 				// otherwise the generated JSON content can be excessively big.
 				dataStore.pushMetrics(KairosDataEntity.this, builder);
 			}
 
+			@Override
 			public void writeNext(Object[] data) {
 				String name = get("name", String.class, data, true);
 				Metric metric = builder.addMetric(name);
@@ -101,31 +107,35 @@ class KairosDataEntity implements CustomDataEntity {
 
 			private <T> T get(String field, Class<T> type, Object[] data, boolean mandatory) {
 				Integer position = fieldPositions.get(field);
-				if(position == null){
-					if(mandatory){
+				if (position == null) {
+					if (mandatory) {
 						throw new IllegalStateException("Mandatory field '" + field + "' not mapped.");
 					} else {
 						return null;
 					}
-				} 
+				}
 				Object value = data[position.intValue()];
 				return type.cast(value);
 			}
 
+			@Override
 			public ReadingProcess retrieveGeneratedKeys() {
 				return null;
 			}
 		};
 	}
 
+	@Override
 	public UpdateProcess prepareToUpdate(String[] fieldsToUpdate, String[] fieldsToMatch) {
 		return null;
 	}
 
+	@Override
 	public ExclusionProcess prepareToDelete(String[] fieldsToMatch) {
 		return null;
 	}
 
+	@Override
 	public void deleteAll() {
 	}
 }

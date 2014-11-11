@@ -29,7 +29,7 @@ public class DatabaseFactory {
 
 		registerDatabase(MySqlDatabase.class);
 		registerDatabase(HsqlDatabase.class);
-	
+
 		properties = new Properties();
 		try {
 			properties.load(new FileInputStream("src/main/resources/connection.properties"));

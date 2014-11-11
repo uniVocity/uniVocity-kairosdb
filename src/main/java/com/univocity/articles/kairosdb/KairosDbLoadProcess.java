@@ -24,10 +24,10 @@ public class KairosDbLoadProcess {
 	private static final Logger log = LoggerFactory.getLogger(KairosDbLoadProcess.class);
 
 	private static final String ENGINE_NAME = "KAIROS_DB_LOAD";
-	
+
 	private static final String SOURCE = "database";
 	private static final String DESTINATION = "kairos";
-	
+
 	private final Database database;
 	private final Database metadataDatabase;
 
@@ -35,9 +35,8 @@ public class KairosDbLoadProcess {
 
 	private int batchSize = 10000;
 
-	
 	public KairosDbLoadProcess() {
-		
+
 		this.database = DatabaseFactory.getInstance().getDestinationDatabase();
 		this.metadataDatabase = DatabaseFactory.getInstance().getMetadataDatabase();
 
@@ -49,11 +48,10 @@ public class KairosDbLoadProcess {
 
 		EngineConfiguration config = new EngineConfiguration(ENGINE_NAME, databaseConfig, kairosConfig);
 		config.setMetadataSettings(metadataConfig);
-		
+
 		//This step is important: it makes uniVocity "know" how to initialize a data store from our KairosDataStoreConfiguration
 		config.addCustomDataStoreFactories(new KairosDataStoreFactory());
 
-		
 		Univocity.registerEngine(config);
 		engine = Univocity.getEngine(ENGINE_NAME);
 
@@ -76,7 +74,7 @@ public class KairosDbLoadProcess {
 		//when reading from tables of this database, never load more than the given number of rows at once.
 		//uniVocity will block any reading process until there's room for more rows.
 		config.setLimitOfRowsLoadedInMemory(batchSize);
-		
+
 		//applies any additional configuration that is database-dependent. Refer to the implementations under package *com.univocity.articles.importcities.databases*
 		database.applyDatabaseSpecificConfiguration(config);
 
@@ -90,9 +88,9 @@ public class KairosDbLoadProcess {
 	 * @return the configuration for the "Kairos" data store.
 	 */
 	public DataStoreConfiguration createKairosDbConfiguration() {
-		
+
 		KairosDataStoreConfiguration config = new KairosDataStoreConfiguration(DESTINATION, "localhost:8080");
-		
+
 		//entity observations with tag "observationKind"
 		config.addEntity("observations", "observationKind");
 
@@ -134,36 +132,38 @@ public class KairosDbLoadProcess {
 	public void execute() {
 		engine.executeCycle();
 	}
-	
 
-	private void configureMappings(){
+	private void configureMappings() {
 		engine.addFunction(EngineScope.STATELESS, "mergeFunction", new FunctionCall<String, Object[]>() {
+			@Override
 			public String execute(Object[] input) {
 				return StringUtils.join(input, '.');
 			}
 		});
-		
-		engine.addFunction(EngineScope.STATELESS, "from_s_to_ms", new FunctionCall<Long, Integer>(){
+
+		engine.addFunction(EngineScope.STATELESS, "from_s_to_ms", new FunctionCall<Long, Integer>() {
+			@Override
 			public Long execute(Integer timeInSeconds) {
 				return 1000L * timeInSeconds;
 			}
 		});
-		
-		
+
 		DataStoreMapping mapping = engine.map(SOURCE, DESTINATION);
-		
+
 		EntityMapping map = mapping.map("observation", "observations");
-		
+
 		map.identity().associate("fieldUnitZoneIdentifier", "fieldUnitAddress", "deviceLabel").to("name").readWith("mergeFunction");
 		map.value().copy("observationTimeEpochSeconds").to("timestamp").readingWith("from_s_to_ms");
 		map.value().copy("observedValue").to("value");
 		map.value().copy("observationKind").to("observationKind");
+		
+		//we are just inserting here:
+		map.persistence().usingMetadata().deleteDisabled().updateDisabled().insertNewRows();
 	}
 
-	
-	public static void main(String ... args){
+	public static void main(String... args) {
 		KairosDbLoadProcess process = new KairosDbLoadProcess();
-		try{
+		try {
 			process.execute();
 		} finally {
 			process.shutdown();

@@ -18,10 +18,12 @@ import com.univocity.api.entity.custom.*;
  */
 public class KairosDataStoreFactory implements CustomDataStoreFactory<KairosDataStoreConfiguration> {
 
+	@Override
 	public CustomDataStore<?> newDataStore(KairosDataStoreConfiguration configuration) {
 		return new KairosDataStore(configuration);
 	}
 
+	@Override
 	public Class<KairosDataStoreConfiguration> getConfigurationType() {
 		return KairosDataStoreConfiguration.class;
 	}

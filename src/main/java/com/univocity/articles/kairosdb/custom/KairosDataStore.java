@@ -40,23 +40,27 @@ class KairosDataStore implements CustomDataStore<KairosDataEntity> {
 	}
 
 	private void createEntities() {
-		for(Entry<String, String[]> e : configuration.entities.entrySet()){
+		for (Entry<String, String[]> e : configuration.entities.entrySet()) {
 			entities.add(new KairosDataEntity(this, e.getKey(), e.getValue()));
 		}
 	}
 
+	@Override
 	public Set<KairosDataEntity> getDataEntities() {
 		return entities;
 	}
 
+	@Override
 	public Set<? extends CustomQuery> getQueries() {
 		return Collections.emptySet();
 	}
 
+	@Override
 	public CustomQuery addQuery(String queryName, String query) {
 		return null;
 	}
 
+	@Override
 	public void executeInTransaction(TransactionalOperation operation) {
 		if (activeClient == null) {
 			try {
@@ -70,7 +74,7 @@ class KairosDataStore implements CustomDataStore<KairosDataEntity> {
 			operation.execute();
 		} finally {
 			try {
-				if(activeClient != null){
+				if (activeClient != null) {
 					activeClient.shutdown();
 				}
 			} catch (IOException e) {
@@ -79,10 +83,10 @@ class KairosDataStore implements CustomDataStore<KairosDataEntity> {
 		}
 	}
 
-	private String describeMe(KairosDataEntity entity){
+	private String describeMe(KairosDataEntity entity) {
 		return "KairosDB (" + configuration.getDataStoreName() + " - " + configuration.getUrl() + " through " + entity.getEntityName();
 	}
-	
+
 	void pushMetrics(KairosDataEntity entity, MetricBuilder builder) {
 		try {
 			Response response = activeClient.pushMetrics(builder);
@@ -96,6 +100,7 @@ class KairosDataStore implements CustomDataStore<KairosDataEntity> {
 		}
 	}
 
+	@Override
 	public DataStoreConfiguration getConfiguration() {
 		return configuration;
 	}
