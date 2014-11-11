@@ -79,7 +79,7 @@ Simply edit the [connection.properties](./src/main/resources/connection.properti
 
 ### Process setup.
 
-Before executing the [KairosDbLoadProcess.java] (.src/main/java/com/univocity/articles/kairosdb/KairosDbLoadProcess.java) class, you need to start up your KairosDB instance.
+Before executing the [KairosDbLoadProcess.java] (./src/main/java/com/univocity/articles/kairosdb/KairosDbLoadProcess.java) class, you need to start up your KairosDB instance.
 Possibly, you'll need to edit the following snippet to use your specific connection URL: 
 
 ```
@@ -97,7 +97,7 @@ Possibly, you'll need to edit the following snippet to use your specific connect
 
 ## Executing the process 
 
-Just execute [KairosDbLoadProcess.java] (.src/main/java/com/univocity/articles/kairosdb/KairosDbLoadProcess.java) as a java program. The process will try to connect to your database and create the required tables if they are not present, and then process will start.
+Just execute [KairosDbLoadProcess.java] (./src/main/java/com/univocity/articles/kairosdb/KairosDbLoadProcess.java) as a java program. The process will try to connect to your database and create the required tables if they are not present, and then process will start.
 
 If this is the first time you execute uniVocity, a pop-up will will be displayed asking if you agree with the uniVocity free license terms and conditions. Once you agree it will disappear and the process will start normally. Keep in mind that the free license is only available for non-commercial purposes and batching is disabled.
 
