@@ -1,0 +1,7 @@
+CREATE TABLE processed_rows (
+	id 			  	INTEGER AUTO_INCREMENT,
+	table_name	  	VARCHAR(256) NOT NULL UNIQUE,
+	increment_size 	INTEGER NOT NULL,
+	last_id			BIGINT(20) NOT NULL DEFAULT -1,
+	PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;

@@ -73,7 +73,7 @@ public class DatabaseFactory {
 	 * @return an instance of {@link Database}, properly initialized with the given credentials.
 	 */
 	public Database getDestinationDatabase() {
-		return newDatabase("source", "observation");
+		return newDatabase("source", "observation,processed_rows");
 	}
 
 	/**
