@@ -10,8 +10,8 @@
 	<logger name="com.univocity.log.metadata.data" level="warn" />
 	
 	<!-- statement logs -->
-	<logger name="com.univocity.log.statement" level="warn" />
-	<logger name="com.univocity.log.metadata.statement" level="warn" />
+	<logger name="com.univocity.log.statement" level="debug" />
+	<logger name="com.univocity.log.metadata.statement" level="debug" />
 
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
@@ -19,7 +19,7 @@
 		</encoder>
 	</appender>
 
-	<root level="info">
+	<root level="debug">
 		<appender-ref ref="STDOUT" />
 	</root>
 </configuration>

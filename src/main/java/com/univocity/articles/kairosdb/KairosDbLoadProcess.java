@@ -206,6 +206,14 @@ public class KairosDbLoadProcess {
 				//at the end of this mapping, we can update the last row id.
 				if (lastRowId != null) {
 					new JdbcTemplate(database.getDataSource()).execute("update processed_rows set last_id = " + lastRowId + " where table_name = 'observation'");
+				} else {
+					//we might have a gap in IDs that is bigger than the increment range.
+					Object[] range = (Object[]) context.executeFunction("getRangeOfRows"); // won't go to the database again. This function is bound to the cycle scope.
+					Long lastRow = (Long) range[1];
+					Long nextId = new JdbcTemplate(database.getDataSource()).queryForObject("select min(id) from observation where id > " + lastRow, Long.class);
+					if(nextId != null && nextId != 0L){ 
+						new JdbcTemplate(database.getDataSource()).execute("update processed_rows set last_id = " + (nextId - 1) + " where table_name = 'observation'");
+					}
 				}
 			}
 		});
